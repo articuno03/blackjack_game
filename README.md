@@ -18,3 +18,41 @@ This is a simple blackjack game created for online multiplayer
 **Additional resources:**
 * [Link to Python documentation]
 * [Link to sockets tutorial]
+
+# Statement of Work
+
+**Project**
+* BlackJack
+
+**Team**
+* Garret Tilton and Will Fagerstrom
+
+**Objective**
+*We will be creating a simple online blackjack game. There will be a betting system and graphics for cards.
+
+**Scope**
+* Inclusions: A fake money system in the form of chips, a graphical representation of cards and a table, the blackjack game itself, a set of rules on the side for new players.
+* Exclusions: Animations, no more than 2 players
+
+**Deliverables**
+* Various python scripts for controlling sockets, game mechanics, and a graphical interface. A document outlining the project. A rulebook.
+
+**Timeline**
+* Milestones:
+* Task Breakdown:
+
+**Technical Requirements**
+*Hardware
+*Software
+
+**Assumptions**
+*Assumptions
+
+**Role and Responsibilities**
+*Roles
+
+**Communication Plan**
+*Channels
+
+**Additional Notes**
+*Notes
