@@ -19,12 +19,12 @@ def read(conn, mask):
         sel.unregister(conn)
         conn.close()
 
-host = '' 
+host = '0.0.0.0' 
 port = 23456
 
 sock = socket.socket()
 sock.bind((host, port))
-sock.listen()
+sock.listen(5)
 print("listening on", (host, port))
 sock.setblocking(False)
 sel.register(sock, selectors.EVENT_READ, accept)

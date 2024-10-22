@@ -20,7 +20,7 @@ def start_connections(host, port, num_conns):
             conn_id = conn_id,
             recv_total = 0,
             outb=b"",
-            messages = ["Hello from client {conn_id}!".encode()] # Example message
+            messages = ["Hello from client {conn_id}!".encode()], # Example message
             msg_total = 1 # Total messages to send
         )
         sel.register(sock, selectors.EVENT_READ | selectors.EVENT_WRITE, data=data)
@@ -31,25 +31,25 @@ def service_connection(key, mask):
     if mask & selectors.EVENT_READ:
         recv_data = sock.recv(1024) # Read
         if recv_data:
-            print("received", repr(recv_data), "from connection", data.connid)
+            print("received", repr(recv_data), "from connection", data.conn_id)
             data.recv_total += len(recv_data)
         if not recv_data or data.recv_total == data.msg_total:
-            print("closing connection", data.connid)
+            print("closing connection", data.conn_id)
             sel.unregister(sock)
             sock.close()
     if mask & selectors.EVENT_WRITE:
         if not data.outb and data.messages:
             data.outb = data.messages.pop(0)
         if data.outb:
-            print("sending", repr(data.outb), "to connection", data.connid)
+            print("sending", repr(data.outb), "to connection", data.conn_id)
             sent = sock.send(data.outb)  # Write
             data.outb = data.outb[sent:]
 
 
 # Main
 
-host = ''   # use 0.0.0.0 if you want to communicate across machines in a real network
-port = 65432
+host = '0.0.0.0'   # use 0.0.0.0 if you want to communicate across machines in a real network
+port = 23456
 num_conns = 10       # number of clients (change as needed)
 
 
