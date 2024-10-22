@@ -1,4 +1,3 @@
-
 import socket
 import selectors
 
@@ -21,11 +20,12 @@ def read(conn, mask):
         conn.close()
 
 host = '' 
-port = 65432
+port = 23456
 
 sock = socket.socket()
 sock.bind((host, port))
-sock.listen(100)
+sock.listen()
+print("listening on", (host, port))
 sock.setblocking(False)
 sel.register(sock, selectors.EVENT_READ, accept)
 
