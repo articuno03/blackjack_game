@@ -56,3 +56,35 @@ This is a simple blackjack game created for online multiplayer
 
 **Additional Notes**
 *Notes
+
+# Sprint 1: Implement TCP Client/Server
+* Properly established a connection between client and server with the max number of clients set to 10.
+* Included error handling for improper Host and Port as well as unsuccessful connections
+
+# Sprint 2: Design and Implement Message Protocol
+* Messages can be sent between clients and received by the server.
+* Format of the messages consist of Join, Chat, Start, and Quit
+* Server side parses messages based on input and will send messages based on type
+* Properly sends error messages when incorrect messaging is sent over the server
+* TODO: Implement a list of connected clients
+
+# Sprint 3: Multiplayer Functionality, Synchronize State Across Clients
+* TODO: Assign unique ID's for each client
+* TODO: Create class: OutputFormat
+* TODO: Create class: CardManager
+* TODO: Create class: GameLogic
+* TODO: Begin game and send game board with message "Start"
+* TODO: Shuffle array list of cards and send to clients
+
+  # Sprint 4: Gameplay, Game State, UI
+  * TODO: Allow for player input and iterate through player turns
+  * TODO: Implement "House" player as server
+  * TODO: Implement win conditions
+ 
+  # Sprint 5: Implement Error Handling and Testing
+  * TODO: Proplerly Handle Errors and Test Mechanics
+
+  # Sprint 6: Additional Bonus Features
+  * TODO: Implement Money System
+  * TODO: Implement Split and Double Functionality
+  * TODO: Implement BlackJack Win Status
