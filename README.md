@@ -76,15 +76,15 @@ This is a simple blackjack game created for online multiplayer
 * TODO: Begin game and send game board with message "Start"
 * TODO: Shuffle array list of cards and send to clients
 
-  # Sprint 4: Gameplay, Game State, UI
-  * TODO: Allow for player input and iterate through player turns
-  * TODO: Implement "House" player as server
-  * TODO: Implement win conditions
+# Sprint 4: Gameplay, Game State, UI
+* TODO: Allow for player input and iterate through player turns
+* TODO: Implement "House" player as server
+* TODO: Implement win conditions
  
-  # Sprint 5: Implement Error Handling and Testing
-  * TODO: Proplerly Handle Errors and Test Mechanics
+# Sprint 5: Implement Error Handling and Testing
+* TODO: Proplerly Handle Errors and Test Mechanics
 
-  # Sprint 6: Additional Bonus Features
-  * TODO: Implement Money System
-  * TODO: Implement Split and Double Functionality
-  * TODO: Implement BlackJack Win Status
+# Sprint 6: Additional Bonus Features
+* TODO: Implement Money System
+* TODO: Implement Split and Double Functionality
+* TODO: Implement BlackJack Win Status
