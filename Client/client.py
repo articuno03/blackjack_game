@@ -22,7 +22,8 @@ def start_connections(host, port, num_conns):
             conn_id=conn_id,
             recv_total=0,
             outb=b"",
-            messages=[create_message("join", {"client_id": conn_id})]  # Join message
+            messages=[create_message("join", {"client_id": conn_id})],  # Join message
+            chat_mode=False # Initialize chat mode as False
         )
         sel.register(sock, selectors.EVENT_READ | selectors.EVENT_WRITE, data=data)
 
@@ -48,7 +49,7 @@ def service_connection(key, mask):
             message = json.loads(recv_data.decode())
             print("Received", message, "from connection", data.conn_id)
             data.recv_total += len(recv_data)
-            handle_message(message)  # Process the received message
+            handle_message(data, message)  # Process the received message
         if not recv_data:
             print("Closing connection", data.conn_id)
             sel.unregister(sock)
@@ -61,28 +62,44 @@ def service_connection(key, mask):
             sent = sock.send(data.outb)
             data.outb = data.outb[sent:]
 
-def handle_message(message):
+def handle_message(data, message):
     """Handles incoming messages from the server."""
     if message["type"] == "chat":
-        print("Chat message:", message["content"]["text"])
+        data.chat_mode = True
+        print("Chat mode enabled. You may now enter messages.")
     elif message["type"] == "start":
-        print("Player moved:", message["content"])
+        print("Game start message:", message["content"])
     elif message["type"] == "quit":
         print("Player left the game:", message["content"]["client_id"])
 
 def get_user_input(data):
-    """Continuously prompt user for chat input and add it to message queue."""
+    """Continuously prompt user to enter 'chat' to start chat mode."""
     while True:
-        chat_text = input(f"Connection {data.conn_id} - Enter chat message: ")
-        if chat_text.lower() == "quit":
-            data.messages.append(create_message("quit", {"client_id": data.conn_id}))
-            break
+        if data.chat_mode:
+            # In chat mode, prompt for chat messages
+            chat_text = input("Enter chat message (type 'exit_chat' to leave chat mode): ")
+            if chat_text.lower() == "exit_chat":
+                data.chat_mode = False  # Exit chat mode
+                print("Exiting chat mode.")
+            elif chat_text.lower() == "quit":
+                data.messages.append(create_message("quit", {"client_id": data.conn_id}))
+                break
+            else:
+                # Send chat message
+                data.messages.append(create_message("chat", {"text": chat_text}))
         else:
-            data.messages.append(create_message("chat", {"text": chat_text}))
+            # When not in chat mode, prompt only once to enter "chat" or "quit"
+            command = input("Enter 'chat' to start chat mode or 'quit' to disconnect: ")
+            if command.lower() == "chat":
+                data.chat_mode = True  # Enable chat mode
+                print("Entering chat mode. You can now send messages.")
+            elif command.lower() == "quit":
+                data.messages.append(create_message("quit", {"client_id": data.conn_id}))
+                break
 
 # Main
 host = '129.82.44.161'
-port = 23456
+port = 2345
 num_conns = 1  # Adjust as needed
 
 start_connections(host, port, num_conns)
