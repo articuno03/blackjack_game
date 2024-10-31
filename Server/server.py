@@ -30,8 +30,8 @@ def process_message(conn, message):
     msg_type = message.get("type")
     if msg_type == "join":
         handle_join(conn, message)
-    elif msg_type == "move":
-        handle_move(conn, message)
+    elif msg_type == "start":
+        handle_start(conn, message)
     elif msg_type == "chat":
         handle_chat(conn, message)
     elif msg_type == "quit":
@@ -44,11 +44,15 @@ def handle_join(conn, message):
     clients[conn]["state"]["client_id"] = client_id
     print(f"Client {client_id} joined from {clients[conn]['addr']}")
     broadcast_message({"type": "info", "content": f"Client {client_id} has joined the game."})
+    # Assign each player with a unique ID
+    # Prompt user for a username that will be associated with them for the entire game unitl they quit
 
-def handle_move(conn, message):
+def handle_start(conn, message):
     move_data = message["content"]
-    clients[conn]["state"]["move"] = move_data
-    print(f"Client {clients[conn]['state']['client_id']} moved: {move_data}")
+    clients[conn]["state"]["start"] = move_data
+    print(f"Client {clients[conn]['state']['client_id']} start game: {move_data}")
+    # This will begin the game, when any client enters start.
+    # Use the GameBoard Class to send Board to all players
 
 def handle_chat(conn, message):
     chat_text = message["content"]["text"]
