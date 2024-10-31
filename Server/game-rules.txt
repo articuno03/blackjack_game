@@ -1,0 +1,22 @@
+WELCOME TO BLACKJACK                                         
+                                                             
+OBJECTIVE: REACH 21, BUT DONT GO OVER!                       
+                                                             
+COMMANDS:                                                    
+                                                             
+HIT: DRAW CARD                                               
+STAND: KEEP CURRENT HAND                                     
+                                                             
+HOW TO PLAY:                                                 
+                                                             
+- EACH PLAYER DEALT 2 CARDS                                  
+- IF YOUR CARDS EQUAL HIGHER THAN THE SERVERS CARDS, YOU WIN!
+- IF YOUR CARDS ARE BELOW THE SERVERS CARDS, YOU LOSE :(     
+- IF YOUR CARDS ARE OVER 21, BUST YOU LOSE :(                
+                                                             
+HAVE FUN!                                                    
+                                                             
+ADDITIONAL COMMANDS:                                         
+                                                             
+CHAT: COMMUNICATE WITH PLAYERS                               
+QUIT: LEAVE THE GAME          
