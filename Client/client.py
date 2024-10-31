@@ -65,7 +65,7 @@ def handle_message(message):
     """Handles incoming messages from the server."""
     if message["type"] == "chat":
         print("Chat message:", message["content"]["text"])
-    elif message["type"] == "move":
+    elif message["type"] == "start":
         print("Player moved:", message["content"])
     elif message["type"] == "quit":
         print("Player left the game:", message["content"]["client_id"])
