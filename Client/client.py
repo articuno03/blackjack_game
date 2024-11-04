@@ -18,11 +18,14 @@ def start_connections(host, port, num_conns):
         except BlockingIOError:
             pass  # Connection is in progress
         
+        # Prompt user for a username
+        username = input(f"Enter username for connection {conn_id}: ")
+
         data = types.SimpleNamespace(
             conn_id=conn_id,
             recv_total=0,
             outb=b"",
-            messages=[create_message("join", {"client_id": conn_id})],  # Join message
+            messages=[create_message("join", {"client_id": conn_id, "username": username})],  # Join message with username
             chat_mode=False # Initialize chat mode as False
         )
         sel.register(sock, selectors.EVENT_READ | selectors.EVENT_WRITE, data=data)
@@ -98,8 +101,8 @@ def get_user_input(data):
                 break
 
 # Main
-host = '129.82.44.161'
-port = 2345
+host = '0.0.0.0'
+port = 23456
 num_conns = 1  # Adjust as needed
 
 start_connections(host, port, num_conns)
