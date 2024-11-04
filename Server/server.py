@@ -41,9 +41,11 @@ def process_message(conn, message):
 
 def handle_join(conn, message):
     client_id = message["content"]["client_id"]
+    username = message["content"]["username"]
     clients[conn]["state"]["client_id"] = client_id
-    print(f"Client {client_id} joined from {clients[conn]['addr']}")
-    broadcast_message({"type": "info", "content": f"Client {client_id} has joined the game."})
+    clients[conn]["state"]["username"] = username
+    print(f" {username} joined from {clients[conn]['addr']}")
+    broadcast_message({"type": "info", "content": f"Client {username} has joined the game."})
     # Assign each player with a unique ID
     # Prompt user for a username that will be associated with them for the entire game unitl they quit
 
@@ -57,7 +59,8 @@ def handle_start(conn, message):
 def handle_chat(conn, message):
     chat_text = message["content"]["text"]
     client_id = clients[conn]["state"].get("client_id", "Unknown")
-    print(f"Chat from {client_id}: {chat_text}")
+    username = clients[conn]["state"]["username"]
+    print(f"Chat from {username}: {chat_text}")
     # Broadcast the chat message to all clients
     broadcast_message({"type": "chat", "content": {"text": chat_text, "client_id": client_id}})
 
