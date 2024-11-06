@@ -22,6 +22,7 @@ def start_connections(host, port, num_conns):
         username = input(f"Enter username for connection {conn_id}: ")
 
         data = types.SimpleNamespace(
+            username=username,
             conn_id=conn_id,
             recv_total=0,
             outb=b"",
@@ -39,7 +40,8 @@ def create_message(msg_type, content):
     """Creates a JSON message with a specified type and content."""
     message = {
         "type": msg_type,
-        "content": content
+        "content": content,
+         
     }
     return json.dumps(message).encode()
 
@@ -50,7 +52,8 @@ def service_connection(key, mask):
         recv_data = sock.recv(1024)
         if recv_data:
             message = json.loads(recv_data.decode())
-            print("Received", message, "from connection", data.conn_id)
+           # print("Received", message, "from connection", data.conn_id)
+            print(message["content"]) 
             data.recv_total += len(recv_data)
             handle_message(data, message)  # Process the received message
         if not recv_data:
@@ -102,7 +105,7 @@ def get_user_input(data):
 
 # Main
 host = '0.0.0.0'
-port = 23456
+port = 2345
 num_conns = 1  # Adjust as needed
 
 start_connections(host, port, num_conns)

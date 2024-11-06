@@ -57,7 +57,7 @@ def broadcast_message(message):
 
 # Server Setup
 host = '0.0.0.0'
-port = 23456
+port = 2345
 
 sock = socket.socket()
 sock.bind((host, port))
