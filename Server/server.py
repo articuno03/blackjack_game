@@ -2,10 +2,13 @@ import socket
 import selectors
 import json
 import types
+from player_info import PlayerInfo
 
 sel = selectors.DefaultSelector()
 clients = {}
 next_client_id = 1
+# Initialize PlayerInfo instance
+player_info = PlayerInfo()
 
 def accept(sock):
     global next_client_id
@@ -30,8 +33,16 @@ def read(conn):
 
 def handle_message(conn, message):
     if message["type"] == "join":
-        clients[conn]["username"] = message["content"]["username"]
-        broadcast_message({"type": "info", "content": f"Client {clients[conn]['id']} ({clients[conn]['username']}) has joined the game."})
+        username = message["content"]["username"]
+        client_id = clients[conn]["id"]
+
+        # Check if the username is already in use
+        if not player_info.add_user(client_id, username):
+            conn.send(json.dumps({"type": "error", "content": "Username already taken"}).encode())
+            return
+
+        clients[conn]["username"] = username
+        broadcast_message({"type": "info", "content": f"Client {client_id} ({username}) has joined the game."})
     elif message["type"] == "chat":
         chat_message = f"{clients[conn]['username']}: {message['content']['text']}"
         print(chat_message)  # Display chat message on the server
@@ -39,10 +50,16 @@ def handle_message(conn, message):
     elif message["type"] == "quit":
         broadcast_message({"type": "info", "content": f"Client {clients[conn]['id']} ({clients[conn]['username']}) has left the game."})
         close_connection(conn)
+    elif message["type"] == "list":
+        # Handle list command to send back current users
+        user_list = player_info.get_user_list()
+        conn.send(json.dumps({"type": "info", "content": f"Connected users: {', '.join(user_list)}"}).encode())
 
 def close_connection(conn):
     if conn in clients:
         username = clients[conn]["username"]
+        player_info.remove_user(username)  # Remove from active users
+
         client_id = clients[conn]["id"]
         print('Closing connection to', clients[conn]["addr"])
         sel.unregister(conn)

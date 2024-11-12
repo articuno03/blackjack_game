@@ -52,8 +52,10 @@ def service_connection(key, mask):
         recv_data = sock.recv(1024)
         if recv_data:
             message = json.loads(recv_data.decode())
-           # print("Received", message, "from connection", data.conn_id)
-            print(message["content"]) 
+            if message["type"] == "info" and "Connected users" in message["content"] and not data.chat_mode:
+                print(message["content"])  # Display list of connected users
+            else:
+                print(message["content"])  # Display other server messages
             data.recv_total += len(recv_data)
             handle_message(data, message)  # Process the received message
         if not recv_data:
@@ -64,9 +66,9 @@ def service_connection(key, mask):
         if not data.outb and data.messages:
             data.outb = data.messages.pop(0)
         if data.outb:
-            # print("Sending", repr(data.outb), "to connection", data.conn_id)
             sent = sock.send(data.outb)
             data.outb = data.outb[sent:]
+
 
 def handle_message(data, message):
     """Handles incoming messages from the server."""
@@ -94,17 +96,19 @@ def get_user_input(data):
                 # Send chat message
                 data.messages.append(create_message("chat", {"text": chat_text}))
         else:
-            # When not in chat mode, prompt only once to enter "chat" or "quit"
-            command = input("Enter 'chat' to start chat mode or 'quit' to disconnect: ")
+            # When not in chat mode, prompt only once to enter "chat", "quit", or "list"
+            command = input("Enter 'chat' to start chat mode, 'list' to view connected users, or 'quit' to disconnect: ")
             if command.lower() == "chat":
                 data.chat_mode = True  # Enable chat mode
                 print("Entering chat mode. You can now send messages.")
             elif command.lower() == "quit":
                 data.messages.append(create_message("quit", {"client_id": data.conn_id}))
                 break
+            elif command.lower() == "list":
+                data.messages.append(create_message("list", {}))  # Request list of users from server
 
 # Main
-host = '129.82.44.161'
+host = '0.0.0.0'
 port = 2345
 num_conns = 1  # Adjust as needed
 
