@@ -64,7 +64,7 @@ def service_connection(key, mask):
         if not data.outb and data.messages:
             data.outb = data.messages.pop(0)
         if data.outb:
-            print("Sending", repr(data.outb), "to connection", data.conn_id)
+            # print("Sending", repr(data.outb), "to connection", data.conn_id)
             sent = sock.send(data.outb)
             data.outb = data.outb[sent:]
 
@@ -104,7 +104,7 @@ def get_user_input(data):
                 break
 
 # Main
-host = '0.0.0.0'
+host = '129.82.44.161'
 port = 2345
 num_conns = 1  # Adjust as needed
 
