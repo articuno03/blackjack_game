@@ -42,10 +42,14 @@ def handle_message(conn, message):
 
 def close_connection(conn):
     if conn in clients:
+        username = clients[conn]["username"]
+        client_id = clients[conn]["id"]
         print('Closing connection to', clients[conn]["addr"])
         sel.unregister(conn)
         conn.close()
         del clients[conn]
+        # Notify other clients
+        broadcast_message({"type": "info", "content": f"Client {client_id} ({username}) has left the game."})
 
 def broadcast_message(message):
     msg_data = json.dumps(message).encode()
