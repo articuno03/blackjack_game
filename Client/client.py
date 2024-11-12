@@ -72,7 +72,7 @@ def handle_message(data, message):
     """Handles incoming messages from the server."""
     if message["type"] == "chat":
         data.chat_mode = True
-        print("Chat mode enabled. You may now enter messages.")
+        # print("Chat mode enabled. You may now enter messages.")
     elif message["type"] == "start":
         print("Game start message:", message["content"])
     elif message["type"] == "quit":
@@ -83,7 +83,7 @@ def get_user_input(data):
     while True:
         if data.chat_mode:
             # In chat mode, prompt for chat messages
-            chat_text = input("Enter chat message (type 'exit_chat' to leave chat mode): ")
+            chat_text = input("")
             if chat_text.lower() == "exit_chat":
                 data.chat_mode = False  # Exit chat mode
                 print("Exiting chat mode.")
