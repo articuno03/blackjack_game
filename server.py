@@ -2,6 +2,7 @@ import socket
 import selectors
 import json
 import types
+from Client.clientUI import header  # Import header function
 
 sel = selectors.DefaultSelector()
 clients = {}
@@ -16,6 +17,10 @@ def accept(sock):
     next_client_id += 1
     clients[conn] = {"addr": addr, "id": client_id, "username": None}
     sel.register(conn, selectors.EVENT_READ, read)
+    
+    # Send welcome message
+    conn.send(header().encode())
+    
 
 def read(conn):
     try:
@@ -33,8 +38,8 @@ def handle_message(conn, message):
         clients[conn]["username"] = message["content"]["username"]
         broadcast_message({"type": "info", "content": f"Client {clients[conn]['id']} ({clients[conn]['username']}) has joined the game."})
     elif message["type"] == "chat":
-        chat_message = f"{clients[conn]['username']}: {message['content']['text']}"
-        print(chat_message)  # Display chat message on the server
+        chat_message = {"username": clients[conn]['username'], "text": message['content']['text']}
+        print(f"{chat_message['username']}: {chat_message['text']}")  # Display chat message on the server
         broadcast_message({"type": "chat", "content": chat_message})
     elif message["type"] == "quit":
         broadcast_message({"type": "info", "content": f"Client {clients[conn]['id']} ({clients[conn]['username']}) has left the game."})
@@ -61,7 +66,7 @@ def broadcast_message(message):
 
 # Server Setup
 host = '0.0.0.0'
-port = 2345
+port = 23456
 
 sock = socket.socket()
 sock.bind((host, port))

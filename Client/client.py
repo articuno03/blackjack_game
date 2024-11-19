@@ -19,6 +19,7 @@ def start_connections(host, port, num_conns):
             pass  # Connection is in progress
         
         # Prompt user for a username
+        
         username = input(f"Enter username for connection {conn_id}: ")
 
         data = types.SimpleNamespace(
@@ -41,7 +42,6 @@ def create_message(msg_type, content):
     message = {
         "type": msg_type,
         "content": content,
-         
     }
     return json.dumps(message).encode()
 
@@ -51,11 +51,13 @@ def service_connection(key, mask):
     if mask & selectors.EVENT_READ:
         recv_data = sock.recv(1024)
         if recv_data:
-            message = json.loads(recv_data.decode())
-           # print("Received", message, "from connection", data.conn_id)
-            print(message["content"]) 
+            try:
+                message = json.loads(recv_data.decode())
+                handle_message(data, message)
+            except json.JSONDecodeError:
+                # Handle non-JSON messages (e.g., welcome message)
+                print(recv_data.decode())
             data.recv_total += len(recv_data)
-            handle_message(data, message)  # Process the received message
         if not recv_data:
             print("Closing connection", data.conn_id)
             sel.unregister(sock)
@@ -64,7 +66,6 @@ def service_connection(key, mask):
         if not data.outb and data.messages:
             data.outb = data.messages.pop(0)
         if data.outb:
-            # print("Sending", repr(data.outb), "to connection", data.conn_id)
             sent = sock.send(data.outb)
             data.outb = data.outb[sent:]
 
@@ -72,7 +73,6 @@ def handle_message(data, message):
     """Handles incoming messages from the server."""
     if message["type"] == "chat":
         data.chat_mode = True
-        # print("Chat mode enabled. You may now enter messages.")
     elif message["type"] == "start":
         print("Game start message:", message["content"])
     elif message["type"] == "quit":
@@ -95,7 +95,7 @@ def get_user_input(data):
                 data.messages.append(create_message("chat", {"text": chat_text}))
         else:
             # When not in chat mode, prompt only once to enter "chat" or "quit"
-            command = input("Enter 'chat' to start chat mode or 'quit' to disconnect: ")
+            command = input()
             if command.lower() == "chat":
                 data.chat_mode = True  # Enable chat mode
                 print("Entering chat mode. You can now send messages.")
@@ -105,7 +105,7 @@ def get_user_input(data):
 
 # Main
 host = '129.82.44.161'
-port = 2345
+port = 23456
 num_conns = 1  # Adjust as needed
 
 start_connections(host, port, num_conns)
