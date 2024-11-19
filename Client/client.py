@@ -69,6 +69,7 @@ def service_connection(key, mask):
             sent = sock.send(data.outb)
             data.outb = data.outb[sent:]
 
+
 def handle_message(data, message):
     """Handles incoming messages from the server."""
     if message["type"] == "chat":
@@ -102,6 +103,8 @@ def get_user_input(data):
             elif command.lower() == "quit":
                 data.messages.append(create_message("quit", {"client_id": data.conn_id}))
                 break
+            elif command.lower() == "list":
+                data.messages.append(create_message("list", {}))  # Request list of users from server
 
 # Main
 host = '129.82.44.161'
