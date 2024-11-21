@@ -107,7 +107,7 @@ def get_user_input(data):
                 data.messages.append(create_message("list", {}))  # Request list of users from server
 
 # Main
-host = '129.82.44.161'
+host = '0.0.0.0'
 port = 23456
 num_conns = 1  # Adjust as needed
 
