@@ -3,6 +3,7 @@ import selectors
 import json
 import types
 from Client.clientUI import header  # Import header function
+from Server.player_info import PlayerInfo
 
 sel = selectors.DefaultSelector()
 clients = {}
