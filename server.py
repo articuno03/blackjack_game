@@ -37,28 +37,30 @@ def read(conn):
         close_connection(conn)
 
 def handle_message(conn, message):
-    if message["type"] == "join":
-        username = message["content"]["username"]
-        client_id = clients[conn]["id"]
+    # Handle start message
+    if message["type"] == "start":
+        print("Players queued to start the game. Will start when all players enter start") # TODO Finish implementing this
 
-        # Check if the username is already in use
-        if not player_info.add_user(client_id, username):
-            conn.send(json.dumps({"type": "error", "content": "Username already taken"}).encode())
-            return
-
-        clients[conn]["username"] = username
-        broadcast_message({"type": "info", "content": f"Client {client_id} ({username}) has joined the game."})
+    # Handle chat message
     elif message["type"] == "chat":
         chat_message = {"username": clients[conn]['username'], "text": message['content']['text']}
         print(f"{chat_message['username']}: {chat_message['text']}")  # Display chat message on the server
         broadcast_message({"type": "chat", "content": chat_message})
+
+    # Handle list message
+    elif message["type"] == "list":
+        # Fetch connected users from PlayerInfo
+        user_list = player_info.get_user_list()
+        user_list_message = {
+            "type": "list",
+            "content": {"users": user_list}
+        }
+        conn.send(json.dumps(user_list_message).encode())
+
+    # Handle quit message
     elif message["type"] == "quit":
         broadcast_message({"type": "info", "content": f"Client {clients[conn]['id']} ({clients[conn]['username']}) has left the game."})
         close_connection(conn)
-    elif message["type"] == "list":
-        # Handle list command to send back current users
-        user_list = player_info.get_user_list()
-        conn.send(json.dumps({"type": "info", "content": f"Connected users: {', '.join(user_list)}"}).encode())
 
 def close_connection(conn):
     if conn in clients:
