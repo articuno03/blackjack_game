@@ -37,8 +37,25 @@ def read(conn):
         close_connection(conn)
 
 def handle_message(conn, message):
+
+    # Handle join message
+    if message["type"] == "join":
+        username = message["content"]["username"]
+        
+        # Ensure username is not already in use
+        if player_info.add_user(clients[conn]["id"], username):
+            clients[conn]["username"] = username  # Save username in clients dictionary
+            print(f"Client {clients[conn]['id']} joined as {username}.")
+            conn.send(json.dumps({"type": "info", "content": f"Welcome, {username}!"}).encode())
+            
+            # Notify other clients
+            broadcast_message({"type": "info", "content": f"{username} has joined the game."})
+        else:
+            # Username already taken
+            conn.send(json.dumps({"type": "error", "content": "Username is already taken. Please try again."}).encode())
+    
     # Handle start message
-    if message["type"] == "start":
+    elif message["type"] == "start":
         print("Players queued to start the game. Will start when all players enter start") # TODO Finish implementing this
 
     # Handle chat message
@@ -65,7 +82,11 @@ def handle_message(conn, message):
 def close_connection(conn):
     if conn in clients:
         username = clients[conn]["username"]
-        player_info.remove_user(username)  # Remove from active users
+
+        # Remove the user from PlayerInfo if they have a username
+        if username:
+            player_info.remove_user(username)
+            print(f"Removed {username} from player list.")
 
         client_id = clients[conn]["id"]
         print('Closing connection to', clients[conn]["addr"])
@@ -73,7 +94,8 @@ def close_connection(conn):
         conn.close()
         del clients[conn]
         # Notify other clients
-        broadcast_message({"type": "info", "content": f"Client {client_id} ({username}) has left the game."})
+        broadcast_message({"type": "info",
+                            "content": f"Client {client_id} ({username}) has left the game."})
 
 def broadcast_message(message):
     msg_data = json.dumps(message).encode()
