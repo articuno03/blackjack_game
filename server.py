@@ -46,7 +46,7 @@ def handle_message(conn, message):
         if player_info.add_user(clients[conn]["id"], username):
             clients[conn]["username"] = username  # Save username in clients dictionary
             print(f"Client {clients[conn]['id']} joined as {username}.")
-            conn.send(json.dumps({"type": "info", "content": f"Welcome, {username}!"}).encode())
+            #conn.send(json.dumps({"type": "info", "content": f"Welcome, {username}!"}).encode())
             
             # Notify other clients
             broadcast_message({"type": "info", "content": f"{username} has joined the game."})
