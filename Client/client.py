@@ -72,10 +72,21 @@ def service_connection(key, mask):
 
 def handle_message(data, message):
     """Handles incoming messages from the server."""
-    if message["type"] == "chat":
-        data.chat_mode = True
-    elif message["type"] == "start":
+
+    # Handle start message
+    if message["type"] == "start":
         print("Game start message:", message["content"])
+
+    # Handle chat message
+    elif message["type"] == "chat":
+        print(f"{message['content']['username']}: {message['content']['text']}")
+
+    # Handle list message
+    elif message["type"] == "list":
+        users = message["content"]["users"]
+        print("Connected users:", ", ".join(users))
+    
+    # Handle quit message
     elif message["type"] == "quit":
         print("Player left the game:", message["content"]["client_id"])
 
