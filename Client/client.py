@@ -53,7 +53,7 @@ def service_connection(key, mask):
         if recv_data:
             try:
                 message = json.loads(recv_data.decode())
-                handle_message(data, message)
+                handle_message(data, message, sock)
             except json.JSONDecodeError:
                 # Handle non-JSON messages (e.g., welcome message)
                 print(recv_data.decode())
@@ -69,12 +69,25 @@ def service_connection(key, mask):
             sent = sock.send(data.outb)
             data.outb = data.outb[sent:]
 
+def prompt_for_username(data, sock):
+    """Prompt the user for a unique username until the server accepts it."""
+    while True:
+        new_username = input("Enter a new username: ")
+        data.messages.append(create_message("join", {"username": new_username}))
 
-def handle_message(data, message):
+def handle_message(data, message, sock):
     """Handles incoming messages from the server."""
 
+    # Handle welcome message
+    if message["type"] == "info":
+        print(message["content"])
+
+    elif message["type"] == "error" and "Username is already taken" in message["content"]:
+        print("Server:", message["content"])
+        prompt_for_username(data, sock)
+
     # Handle start message
-    if message["type"] == "start":
+    elif message["type"] == "start":
         print("Game start message:", message["content"])
 
     # Handle chat message
