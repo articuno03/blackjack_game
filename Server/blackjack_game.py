@@ -1,8 +1,14 @@
 import json
 
 class BlackjackGame:
-    def __init__(self, players):
+    def __init__(self, players, broadcast_callback):
+        """
+        Initialize the game.
+        :param players: List of player dictionaries with their connection and username.
+        :param broadcast_callback: A callback function to broadcast messages to all players.
+        """
         self.players = players
+        self.broadcast = broadcast_callback
         self.deck = self.create_deck()
         self.hands = {player['username']: [] for player in players}
         self.turn_order = [player['username'] for player in players]
@@ -41,10 +47,19 @@ class BlackjackGame:
     def prompt_next_player(self):
         if self.current_player < len(self.turn_order):
             current_username = self.turn_order[self.current_player]
-            self.broadcast_message({
+            self.broadcast({
                 "type": "info",
                 "content": f"It's {current_username}'s turn."
             })
+        else:
+            self.end_game()
+
+    def end_game(self):
+        self.broadcast({
+            "type": "info",
+            "content": "The game has ended. Calculating results..."
+        })
+        # Add result calculation and announce the winner
 
     def handle_player_action(self, conn, action):
         username = self.turn_order[self.current_player]

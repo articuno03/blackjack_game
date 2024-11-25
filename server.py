@@ -97,7 +97,7 @@ def handle_start(conn):
         broadcast_message({"type": "start", "content": "All players are ready! Starting the game..."})
 
         players = [{"conn": conn, "username": clients[conn]["username"]} for conn in clients]
-        blackjack_game = BlackjackGame(players)
+        blackjack_game = BlackjackGame(players, broadcast_message)
         blackjack_game.start_game()
 
 
