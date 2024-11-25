@@ -6,6 +6,7 @@ import threading
 
 sel = selectors.DefaultSelector()
 
+
 def start_connections(host, port, num_conns):
     server_addr = (host, port)
     for i in range(num_conns):
@@ -19,31 +20,26 @@ def start_connections(host, port, num_conns):
             pass  # Connection is in progress
         
         # Prompt user for a username
-        
-        username = input(f"Enter username for connection {conn_id}: ")
+        username = input(f"Enter username for connection {conn_id}: ").strip()
 
         data = types.SimpleNamespace(
             username=username,
             conn_id=conn_id,
             recv_total=0,
             outb=b"",
-            messages=[create_message("join", {"client_id": conn_id, "username": username})],  # Join message with username
-            chat_mode=False # Initialize chat mode as False
+            messages=[create_message("join", {"username": username})],
+            chat_mode=False,  # Initialize chat mode as False
         )
         sel.register(sock, selectors.EVENT_READ | selectors.EVENT_WRITE, data=data)
 
-        # Start a separate thread to get user input for each connection
-        input_thread = threading.Thread(target=get_user_input, args=(data,))
-        input_thread.daemon = True
-        input_thread.start()
+        # Start a separate thread to get user input
+        threading.Thread(target=get_user_input, args=(data,)).start()
+
 
 def create_message(msg_type, content):
     """Creates a JSON message with a specified type and content."""
-    message = {
-        "type": msg_type,
-        "content": content,
-    }
-    return json.dumps(message).encode()
+    return json.dumps({"type": msg_type, "content": content}).encode()
+
 
 def service_connection(key, mask):
     sock = key.fileobj
@@ -53,13 +49,11 @@ def service_connection(key, mask):
         if recv_data:
             try:
                 message = json.loads(recv_data.decode())
-                handle_message(data, message, sock)
+                handle_message(data, message)
             except json.JSONDecodeError:
-                # Handle non-JSON messages (e.g., welcome message)
                 print(recv_data.decode())
-            data.recv_total += len(recv_data)
-        if not recv_data:
-            print("Closing connection", data.conn_id)
+        else:
+            print("Connection closed by server.")
             sel.unregister(sock)
             sock.close()
     if mask & selectors.EVENT_WRITE:
@@ -69,83 +63,59 @@ def service_connection(key, mask):
             sent = sock.send(data.outb)
             data.outb = data.outb[sent:]
 
-def prompt_for_username(data, sock):
-    """Prompt the user for a unique username until the server accepts it."""
-    while True:
-        new_username = input("Enter a new username: ")
-        data.messages.append(create_message("join", {"username": new_username}))
 
-def handle_message(data, message, sock):
-    """Handles incoming messages from the server."""
+def handle_message(data, message):
+    """Processes incoming server messages."""
+    msg_type = message["type"]
+    content = message.get("content", "")
 
-    # Handle welcome message
-    if message["type"] == "info":
-        print(message["content"])
+    if msg_type == "info":
+        print(content)
 
-    elif message["type"] == "error" and "Username is already taken" in message["content"]:
-        print("Server:", message["content"])
-        prompt_for_username(data, sock)
+    elif msg_type == "error":
+        print(f"Error: {content}")
 
-    # Handle start message
-    elif message["type"] == "start":
-        if "content" in message:
-            print(message["content"])
+    elif msg_type == "start":
+        print(f"Game: {content}")
 
-    # Handle game message
-    elif message["type"] == "game":
-        if "content" in message:
-            print("Game Message:", message["content"]) 
+    elif msg_type == "game":
+        print(f"Game Update: {content}")
 
-    # Handle chat message
-    elif message["type"] == "chat":
-        print(f"{message['content']['username']}: {message['content']['text']}")
+    elif msg_type == "chat":
+        username, text = content["username"], content["text"]
+        print(f"{username}: {text}")
 
-    # Handle list message
-    elif message["type"] == "list":
-        users = message["content"]["users"]
+    elif msg_type == "list":
+        users = content.get("users", [])
         print("Connected users:", ", ".join(users))
-    
-    # Handle quit message
-    elif message["type"] == "quit":
-        print("Player left the game:", message["content"]["client_id"])
+
 
 def get_user_input(data):
-    """Continuously prompt user to enter 'chat' to start chat mode."""
+    """Prompts the user for input commands."""
     while True:
         if data.chat_mode:
-            # In chat mode, prompt for chat messages
-            chat_text = input("")
-            if chat_text.lower() == "exit_chat":
-                data.chat_mode = False  # Exit chat mode
-                print("Exiting chat mode.")
-            elif chat_text.lower() == "quit":
-                data.messages.append(create_message("quit", {"client_id": data.conn_id}))
-                break
+            text = input("Chat (type 'exit_chat' to leave): ")
+            if text.lower() == "exit_chat":
+                data.chat_mode = False
             else:
-                # Send chat message
-                data.messages.append(create_message("chat", {"text": chat_text}))
+                data.messages.append(create_message("chat", {"text": text}))
         else:
-            # When not in chat mode, prompt only once to enter "chat" or "quit"
-            command = input("Enter command (chat, start, list, quit): ").strip().lower()
-            if command.lower() == "chat":
-                data.chat_mode = True  # Enable chat mode
-                print("Entering chat mode. You can now send messages.")
-            elif command == "start":
-                data.messages.append(create_message("start", {}))
-            elif command.lower() == "quit":
-                data.messages.append(create_message("quit", {"client_id": data.conn_id}))
-                break
-            elif command.lower() == "list":
-                data.messages.append(create_message("list", {}))  # Request list of users from server
+            command = input("Enter command (chat, start, list, hit, stand, quit): ").strip().lower()
+            if command == "chat":
+                data.chat_mode = True
+            elif command in ["start", "list", "quit", "hit", "stand"]:
+                data.messages.append(create_message(command, {}))
+            else:
+                print("Invalid command. Try again.")
 
-# Main
+
+# Main client logic
 host = '0.0.0.0'
 port = 23456
-num_conns = 1  # Adjust as needed
+num_conns = 1  # Adjust for multiple connections
 
 start_connections(host, port, num_conns)
 
-# Event Loop
 try:
     while True:
         events = sel.select(timeout=1)
