@@ -88,7 +88,13 @@ def handle_message(data, message, sock):
 
     # Handle start message
     elif message["type"] == "start":
-        print("Game start message:", message["content"])
+        if "content" in message:
+            print(message["content"])
+
+    # Handle game message
+    elif message["type"] == "game":
+        if "content" in message:
+            print("Game Message:", message["content"]) 
 
     # Handle chat message
     elif message["type"] == "chat":
@@ -120,10 +126,12 @@ def get_user_input(data):
                 data.messages.append(create_message("chat", {"text": chat_text}))
         else:
             # When not in chat mode, prompt only once to enter "chat" or "quit"
-            command = input()
+            command = input("Enter command (chat, start, list, quit): ").strip().lower()
             if command.lower() == "chat":
                 data.chat_mode = True  # Enable chat mode
                 print("Entering chat mode. You can now send messages.")
+            elif command == "start":
+                data.messages.append(create_message("start", {}))
             elif command.lower() == "quit":
                 data.messages.append(create_message("quit", {"client_id": data.conn_id}))
                 break

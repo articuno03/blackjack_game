@@ -4,11 +4,14 @@ import json
 import types
 from Client.clientUI import header  # Import header function
 from Server.player_info import PlayerInfo
+from Server.blackjack_game import BlackjackGame
 
 sel = selectors.DefaultSelector()
 clients = {}
 next_client_id = 1
-# Initialize PlayerInfo instance
+
+ready_players = set() # Tracks player IDs who are ready
+game_started = False
 player_info = PlayerInfo()
 
 def accept(sock):
@@ -37,6 +40,7 @@ def read(conn):
         close_connection(conn)
 
 def handle_message(conn, message):
+    global ready_players, game_started
 
     # Handle join message
     if message["type"] == "join":
@@ -56,7 +60,26 @@ def handle_message(conn, message):
     
     # Handle start message
     elif message["type"] == "start":
-        print("Players queued to start the game. Will start when all players enter start") # TODO Finish implementing this
+        player_id = clients[conn]["id"]
+        username = clients[conn]["username"]
+
+        if game_started:
+            conn.send(json.dumps({"type": "error", "content": "Game already in progress."}).encode())
+            return
+
+        # Add player to the ready queue
+        ready_players.add(player_id)
+        broadcast_message({"type": "info", "content": f"{username} is ready. ({len(ready_players)}/{len(clients)})"})
+
+        # Check if all players are ready
+        if len(ready_players) == len(clients):
+            game_started = True  # Start the game
+            broadcast_message({"type": "start", "content": "All players are ready! Starting the game..."})
+            players = [{"conn": conn, "username": clients[conn]["username"]} for conn in clients]
+
+            # Start the game using BlackjackGame class
+            blackjack_game = BlackjackGame(players)
+            blackjack_game.start_game()
 
     # Handle chat message
     elif message["type"] == "chat":
@@ -104,6 +127,24 @@ def broadcast_message(message):
             conn.send(msg_data)
         except BrokenPipeError:
             close_connection(conn)
+
+def start_game_logic():
+    # Initialize the blackjack game
+    print("Starting the blackjack game!")
+    # add logic here to shuffle cards, deal initial hands, etc.
+    # Example: Deal cards to all players
+    for conn in clients:
+        conn.send(json.dumps({"type": "game", "content": "Blackjack game started!"}).encode())
+
+    # Reset readiness for the next game
+    reset_game_state()
+
+def reset_game_state():
+    global ready_players, game_started
+    ready_players.clear()
+    game_started = False
+    print("Game state reset. Ready for the next game.")
+
 
 # Server Setup
 host = '0.0.0.0'
