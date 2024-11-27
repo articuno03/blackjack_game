@@ -63,7 +63,15 @@ def handle_message(conn, message):
 
     elif message_type == "game":
         if blackjack_game and game_started:
-            blackjack_game.handle_player_action(conn, message["content"])
+            action = message["content"].get("action")
+            if action in ["hit", "stand"]:
+                blackjack_game.handle_player_action(conn, action)
+            else:
+                conn.send(json.dumps({
+                    "type": "error",
+                    "content": "Invalid action. Use 'hit' or 'stand'."
+                }).encode())
+
 
 
 def handle_join(conn, message):
