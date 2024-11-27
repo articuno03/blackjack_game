@@ -14,6 +14,7 @@ class BlackjackGame:
         self.turn_order = [player['username'] for player in players]
         self.current_player = 0
         self.busted_players = set()
+        self.finished_players = set()
 
     def create_deck(self):
         suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
@@ -45,6 +46,12 @@ class BlackjackGame:
         self.prompt_next_player()
 
     def prompt_next_player(self):
+        # Skip players who have busted or finished their turn
+        while self.current_player < len(self.turn_order) and \
+                (self.turn_order[self.current_player] in self.busted_players or
+                 self.turn_order[self.current_player] in self.finished_players):
+            self.current_player += 1
+
         if self.current_player < len(self.turn_order):
             current_username = self.turn_order[self.current_player]
             self.broadcast({
@@ -55,11 +62,24 @@ class BlackjackGame:
             self.end_game()
 
     def end_game(self):
-        self.broadcast({
-            "type": "info",
-            "content": "The game has ended. Calculating results..."
-        })
-        # Add result calculation and announce the winner
+        results = []
+        for username, hand in self.hands.items():
+            if username not in self.busted_players:
+                hand_value = self.calculate_hand_value(hand)
+                results.append((username, hand_value))
+        results.sort(key=lambda x: x[1], reverse=True)
+
+        winner = results[0][0] if results else None
+        if winner:
+            self.broadcast({
+                "type": "info",
+                "content": f"The game has ended. The winner is {winner} with a hand value of {results[0][1]}!"
+            })
+        else:
+            self.broadcast({
+                "type": "info",
+                "content": "The game has ended. No winners, everyone busted!"
+            })
 
     def handle_player_action(self, conn, action):
         username = self.turn_order[self.current_player]
@@ -77,8 +97,18 @@ class BlackjackGame:
                 }).encode())
                 self.current_player += 1
                 self.prompt_next_player()
+            else:
+                self.broadcast({
+                    "type": "info",
+                    "content": f"{username} chose to hit and received {card}."
+                })
 
         elif action == "stand":
+            self.finished_players.add(username)
+            self.broadcast({
+                "type": "info",
+                "content": f"{username} chose to stand."
+            })
             self.current_player += 1
             self.prompt_next_player()
 

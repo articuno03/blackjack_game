@@ -98,15 +98,28 @@ def get_user_input(data):
             if text.lower() == "exit_chat":
                 data.chat_mode = False
             else:
+                # Send chat messages
                 data.messages.append(create_message("chat", {"text": text}))
         else:
             command = input("Enter command (chat, start, list, hit, stand, quit): ").strip().lower()
             if command == "chat":
                 data.chat_mode = True
-            elif command in ["start", "list", "quit", "hit", "stand"]:
-                data.messages.append(create_message(command, {}))
+            elif command == "start":
+                data.messages.append(create_message("start", {}))
+            elif command == "list":
+                data.messages.append(create_message("list", {}))
+            elif command == "hit":
+                # Send a "game" message with the action "hit"
+                data.messages.append(create_message("game", {"action": "hit"}))
+            elif command == "stand":
+                # Send a "game" message with the action "stand"
+                data.messages.append(create_message("game", {"action": "stand"}))
+            elif command == "quit":
+                data.messages.append(create_message("quit", {}))
+                return  # Quit the loop and exit
             else:
                 print("Invalid command. Try again.")
+
 
 
 # Main client logic
