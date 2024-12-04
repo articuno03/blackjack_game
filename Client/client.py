@@ -79,7 +79,14 @@ def handle_message(data, message):
         print(f"Game: {content}")
 
     elif msg_type == "game":
-        print(f"Game Update: {content}")
+        if isinstance(content, dict):  # Check if content is structured
+            print(content["your_hand"])
+            if "opponents" in content:
+                print("Revealed Cards:")
+                for opponent, card_info in content["opponents"].items():
+                    print(f"  {opponent}: {card_info}")
+        else:
+            print(f"Game Update: {content}")
 
     elif msg_type == "chat":
         username, text = content["username"], content["text"]
