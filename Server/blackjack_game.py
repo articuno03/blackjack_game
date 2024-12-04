@@ -33,13 +33,28 @@ class BlackjackGame:
 
     def send_hand(self, conn, username):
         hand = self.hands[username]
+        opponent_cards = {}
+
+        for opponent in self.hands:
+            if opponent != username and len(self.hands[opponent]) > 0:
+                opponent_cards[opponent] = self.hands[opponent][0]
+
+
         conn.send(json.dumps({
             "type": "game",
-            "content": f"Your hand: {', '.join(hand)}"
+            "content": {
+                "your_hand": f"Your hand: {', '.join(hand)}",
+                "opponents": {opponent: f"Revealed card: {card}" for opponent, card in opponent_cards.items()}
+            }
         }).encode())
 
     def start_game(self):
         self.deal_initial_cards()
+
+        print("Initial hands:")
+        for username, hand in self.hands.items():
+            print(f"{username}: {', '.join(hand)}")
+
         for player in self.players:
             conn, username = player['conn'], player['username']
             self.send_hand(conn, username)
