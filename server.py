@@ -81,7 +81,13 @@ def handle_join(conn, message):
         clients[conn]["username"] = username
         broadcast_message({"type": "info", "content": f"{username} has joined the game."})
     else:
-        conn.send(json.dumps({"type": "error", "content": "Username is already taken."}).encode())
+        conn.send(json.dumps({
+            "type": "error",
+            "content": "Username is already taken. Please try a different one.",
+            "retry": True
+        }).encode())
+        handle_message
+        # Do I need to call back to handle message type join here in order to prompt the user to try adding a username again?
 
 
 def handle_start(conn):

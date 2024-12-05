@@ -74,6 +74,9 @@ def handle_message(data, message):
 
     elif msg_type == "error":
         print(f"Error: {content}")
+        if message.get("retry"):  # Check for the retry flag
+            data.retry_username = True  # Set a flag to indicate a retry
+            return  # Return immediately to allow the retry logic in the main loop
 
     elif msg_type == "start":
         print(f"Game: {content}")
@@ -97,16 +100,26 @@ def handle_message(data, message):
         print("Connected users:", ", ".join(users))
 
 
+
 def get_user_input(data):
     """Prompts the user for input commands."""
     while True:
+        # Prioritize retry username logic
+        if getattr(data, "retry_username", False):
+            while data.retry_username:  # Force retry until the username is valid
+                new_username = input("Enter a new username: ").strip()
+                data.messages.append(create_message("join", {"username": new_username}))
+                data.retry_username = False  # Reset the flag after processing
+
+        # Handle chat mode input
         if data.chat_mode:
             text = input("Chat (type 'exit_chat' to leave): ")
             if text.lower() == "exit_chat":
                 data.chat_mode = False
             else:
-                # Send chat messages
                 data.messages.append(create_message("chat", {"text": text}))
+        
+        # Handle standard commands
         else:
             command = input("Enter command (chat, start, list, hit, stand, quit): ").strip().lower()
             if command == "chat":
@@ -116,16 +129,17 @@ def get_user_input(data):
             elif command == "list":
                 data.messages.append(create_message("list", {}))
             elif command == "hit":
-                # Send a "game" message with the action "hit"
                 data.messages.append(create_message("game", {"action": "hit"}))
             elif command == "stand":
-                # Send a "game" message with the action "stand"
                 data.messages.append(create_message("game", {"action": "stand"}))
             elif command == "quit":
                 data.messages.append(create_message("quit", {}))
-                return  # Quit the loop and exit
+                return  # Exit the input loop
             else:
                 print("Invalid command. Try again.")
+
+
+
 
 
 
