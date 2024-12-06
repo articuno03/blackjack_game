@@ -139,7 +139,8 @@ class BlackjackGame:
                     self.player_info.resolve_bet(username, False)
                 else:
                     self.player_info.resolve_bet(username, True)
-                results.append((username, hand_value))
+                if hand_value <= 21:  # Only consider hands with value <= 21
+                    results.append((username, hand_value))
 
         results.sort(key=lambda x: x[1], reverse=True)
         winner = results[0][0] if results else None
