@@ -83,11 +83,14 @@ def handle_message(data, message):
 
     elif msg_type == "game":
         if isinstance(content, dict):  # Check if content is structured
+            print(content["scoreboard"])
             print(content["your_hand"])
+            
             if "opponents" in content:
-                print("Revealed Cards:")
                 for opponent, card_info in content["opponents"].items():
-                    print(f"  {opponent}: {card_info}")
+                    print(content["opponentsUI"])
+                    print(f"    {opponent}: {card_info}")
+                    
         else:
             print(f"Game Update: {content}")
 
@@ -98,7 +101,6 @@ def handle_message(data, message):
     elif msg_type == "list":
         users = content.get("users", [])
         print("Connected users:", ", ".join(users))
-
 
 
 def get_user_input(data):
@@ -121,7 +123,7 @@ def get_user_input(data):
         
         # Handle standard commands
         else:
-            command = input("Enter command (chat, start, list, hit, stand, quit): ").strip().lower()
+            command = input(" ").strip().lower()
             if command == "chat":
                 data.chat_mode = True
             elif command == "start":
@@ -135,17 +137,18 @@ def get_user_input(data):
             elif command == "quit":
                 data.messages.append(create_message("quit", {}))
                 return  # Exit the input loop
+            elif command == "yes":
+                data.messages.append(create_message("new_game_response", {"response": "yes"}))
+            elif command == "no":
+                data.messages.append(create_message("new_game_response", {"response": "no"}))
             else:
+            
                 print("Invalid command. Try again.")
-
-
-
-
 
 
 # Main client logic
 host = '0.0.0.0'
-port = 23456
+port = 2348
 num_conns = 1  # Adjust for multiple connections
 
 start_connections(host, port, num_conns)

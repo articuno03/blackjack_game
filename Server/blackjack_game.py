@@ -1,23 +1,27 @@
 import json
+import src.ui as UI
 
 class BlackjackGame:
-    def __init__(self, players, broadcast_callback):
+    def __init__(self, players, broadcast_callback, end_game_callback):
         """
         Initialize the game.
         :param players: List of player dictionaries with their connection and username.
         :param broadcast_callback: A callback function to broadcast messages to all players.
+        :param end_game_callback: A callback function to notify the server that the game has ended.
         """
         self.players = players
         self.broadcast = broadcast_callback
+        self.end_game_callback = end_game_callback
         self.deck = self.create_deck()
         self.hands = {player['username']: [] for player in players}
-        self.turn_order = [player['username'] for player in players]
+        self.hands['Dealer'] = []
+        self.turn_order = [player['username'] for player in players] + ['Dealer']
         self.current_player = 0
         self.busted_players = set()
         self.finished_players = set()
 
     def create_deck(self):
-        suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
+        suits = ['Diamonds', 'Hearts', 'Clubs', 'Spades']
         ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
         return [f"{rank} of {suit}" for suit in suits for rank in ranks]
 
@@ -30,6 +34,7 @@ class BlackjackGame:
         for player in self.players:
             username = player['username']
             self.hands[username] = [self.deck.pop(), self.deck.pop()]
+        self.hands['Dealer'] = [self.deck.pop()]
 
     def send_hand(self, conn, username):
         hand = self.hands[username]
@@ -37,14 +42,15 @@ class BlackjackGame:
 
         for opponent in self.hands:
             if opponent != username and len(self.hands[opponent]) > 0:
-                opponent_cards[opponent] = self.hands[opponent][0]
-
+                opponent_cards[opponent] = self.hands[opponent]
 
         conn.send(json.dumps({
             "type": "game",
             "content": {
-                "your_hand": f"Your hand: {', '.join(hand)}",
-                "opponents": {opponent: f"Revealed card: {card}" for opponent, card in opponent_cards.items()}
+                "scoreboard": UI.topScoreboard(),
+                "your_hand": UI.userScoreboard(hand),
+                "opponentsUI":  UI.opponentScoreboard(),
+                "opponents":   {opponent: ', '.join(cards) for opponent, cards in opponent_cards.items()}
             }
         }).encode())
 
@@ -69,12 +75,36 @@ class BlackjackGame:
 
         if self.current_player < len(self.turn_order):
             current_username = self.turn_order[self.current_player]
+            if current_username == 'Dealer':
+                self.dealer_turn()
+            else:
+                self.broadcast({
+                    "type": "info",
+                    "content": f"It's {current_username}'s turn."
+                })
+        else:
+            self.dealer_turn()
+
+    def dealer_turn(self):
+        dealer_hand = self.hands['Dealer']
+        while self.calculate_hand_value(dealer_hand) < 17:
+            dealer_hand.append(self.deck.pop())
+        if self.calculate_hand_value(dealer_hand) > 21:
             self.broadcast({
                 "type": "info",
-                "content": f"It's {current_username}'s turn."
+                "content": "Dealer busted!"
             })
-        else:
-            self.end_game()
+            self.busted_players.add('Dealer')
+        self.finished_players.add('Dealer')
+        self.broadcast_dealer_hand()
+        self.end_game()
+
+    def broadcast_dealer_hand(self):
+        dealer_hand = self.hands['Dealer']
+        self.broadcast({
+            "type": "info",
+            "content": f"Dealer's final hand: {', '.join(dealer_hand)}"
+        })
 
     def end_game(self):
         results = []
@@ -96,20 +126,25 @@ class BlackjackGame:
                 "content": "The game has ended. No winners, everyone busted!"
             })
 
+        self.end_game_callback()  # Notify the server that the game has ended
+
     def handle_player_action(self, conn, action):
         username = self.turn_order[self.current_player]
 
         if action == "hit":
             card = self.deck.pop()
             self.hands[username].append(card)
-            self.send_hand(conn, username)
+            self.send_hand(conn, username)  # Send the updated hand to the player
+
+            # Print the updated hand to the terminal
+            print(f"\n{username}'s updated hand: {', '.join(self.hands[username])}\n")
 
             if self.calculate_hand_value(self.hands[username]) > 21:
                 self.busted_players.add(username)
-                conn.send(json.dumps({
+                self.broadcast({
                     "type": "info",
-                    "content": "You busted!"
-                }).encode())
+                    "content": f"{username} busted!"
+                })
                 self.current_player += 1
                 self.prompt_next_player()
             else:
@@ -126,6 +161,8 @@ class BlackjackGame:
             })
             self.current_player += 1
             self.prompt_next_player()
+
+        
 
     def calculate_hand_value(self, hand):
         value = 0
@@ -146,3 +183,6 @@ class BlackjackGame:
             aces -= 1
 
         return value
+
+    def __repr__(self):
+        return UI.scoreboard(self.players)

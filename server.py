@@ -3,6 +3,7 @@ import selectors
 import json
 from Server.player_info import PlayerInfo
 from Server.blackjack_game import BlackjackGame
+import src.ui as UI
 
 sel = selectors.DefaultSelector()
 clients = {}
@@ -19,7 +20,7 @@ def accept(sock):
     client_id = len(clients) + 1
     clients[conn] = {"addr": addr, "id": client_id, "username": None}
     sel.register(conn, selectors.EVENT_READ, read)
-    conn.send(header().encode())
+    conn.send(UI.header().encode())
     print(f"Accepted connection from {addr}")
 
 
@@ -72,6 +73,12 @@ def handle_message(conn, message):
                     "content": "Invalid action. Use 'hit' or 'stand'."
                 }).encode())
 
+    elif message_type == "new_game_response":
+        response = message["content"].get("response")
+        if response == "yes":
+            handle_start(conn)
+        elif response == "no":
+            conn.send(UI.header().encode())
 
 
 def handle_join(conn, message):
@@ -111,9 +118,13 @@ def handle_start(conn):
         broadcast_message({"type": "start", "content": "All players are ready! Starting the game..."})
 
         players = [{"conn": conn, "username": clients[conn]["username"]} for conn in clients]
-        blackjack_game = BlackjackGame(players, broadcast_message)
+        blackjack_game = BlackjackGame(players, broadcast_message, end_game_callback)
         blackjack_game.start_game()
 
+def end_game_callback():
+    global game_started
+    game_started = False
+    broadcast_message({"type": "info", "content": "The game has ended. Do you want to start a new game? (yes/no)"})
 
 def send_player_list(conn):
     user_list = player_info.get_user_list()
@@ -140,23 +151,11 @@ def broadcast_message(message):
             close_connection(conn)
 
 
-def header():
-    return '''\
-===================================================================
-                       Welcome to Blackjack       
-===================================================================
-Commands:
-  start - Join the game queue
-  chat  - Chat with other players
-  list  - Show connected players
-  quit  - Leave the game
-===================================================================
-'''
 
 
 # Server setup
 host = '0.0.0.0'
-port = 23456
+port = 2348
 
 sock = socket.socket()
 sock.bind((host, port))
