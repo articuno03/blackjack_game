@@ -160,7 +160,7 @@ def broadcast_message(message):
 
 # Server setup
 host = '0.0.0.0'
-port = 23478
+port = 23456
 
 sock = socket.socket()
 sock.bind((host, port))
