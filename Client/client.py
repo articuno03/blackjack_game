@@ -156,7 +156,7 @@ def get_user_input(data):
 
 
 # Main client logic
-host = '0.0.0.0'
+host = '129.82.44.171'
 port = 23456
 num_conns = 1  # Adjust for multiple connections
 
