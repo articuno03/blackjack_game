@@ -83,11 +83,16 @@ def handle_message(data, message):
 
     elif msg_type == "game":
         if isinstance(content, dict):  # Check if content is structured
+            print(content["scoreboard"])
             print(content["your_hand"])
+            print(content["opponentsUI"])
             if "opponents" in content:
-                print("Revealed Cards:")
+               
+               
                 for opponent, card_info in content["opponents"].items():
+                    print(content["opponentsUI"])
                     print(f"  {opponent}: {card_info}")
+                    print(content["opponentsUI"])
         else:
             print(f"Game Update: {content}")
 
@@ -145,7 +150,7 @@ def get_user_input(data):
 
 # Main client logic
 host = '0.0.0.0'
-port = 23456
+port = 2345
 num_conns = 1  # Adjust for multiple connections
 
 start_connections(host, port, num_conns)

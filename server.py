@@ -3,6 +3,7 @@ import selectors
 import json
 from Server.player_info import PlayerInfo
 from Server.blackjack_game import BlackjackGame
+import src.ui as UI
 
 sel = selectors.DefaultSelector()
 clients = {}
@@ -19,7 +20,7 @@ def accept(sock):
     client_id = len(clients) + 1
     clients[conn] = {"addr": addr, "id": client_id, "username": None}
     sel.register(conn, selectors.EVENT_READ, read)
-    conn.send(header().encode())
+    conn.send(UI.header().encode())
     print(f"Accepted connection from {addr}")
 
 
@@ -114,6 +115,8 @@ def handle_start(conn):
         blackjack_game = BlackjackGame(players, broadcast_message)
         blackjack_game.start_game()
 
+        # Send the initial scoreboard
+        
 
 def send_player_list(conn):
     user_list = player_info.get_user_list()
@@ -140,23 +143,11 @@ def broadcast_message(message):
             close_connection(conn)
 
 
-def header():
-    return '''\
-===================================================================
-                       Welcome to Blackjack       
-===================================================================
-Commands:
-  start - Join the game queue
-  chat  - Chat with other players
-  list  - Show connected players
-  quit  - Leave the game
-===================================================================
-'''
 
 
 # Server setup
 host = '0.0.0.0'
-port = 23456
+port = 2345
 
 sock = socket.socket()
 sock.bind((host, port))

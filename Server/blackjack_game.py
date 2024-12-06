@@ -1,4 +1,5 @@
 import json
+import src.ui as UI
 
 class BlackjackGame:
     def __init__(self, players, broadcast_callback):
@@ -17,7 +18,20 @@ class BlackjackGame:
         self.finished_players = set()
 
     def create_deck(self):
-        suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
+        full_deck = [('A', '🃁'), ('A', '🂡'), ('A', '🂱'), ('A', '🃑'),
+                 ('2', '🃂'), ('2', '🂢'), ('2', '🂲'), ('2', '🃒'),
+                 ('3', '🃃'), ('3', '🂣'), ('3', '🂳'), ('3', '🃓'),
+                 ('4', '🃄'), ('4', '🂤'), ('4', '🂴'), ('4', '🃔'),
+                 ('5', '🃅'), ('5', '🂥'), ('5', '🂵'), ('5', '🃕'),
+                 ('6', '🃆'), ('6', '🂦'), ('6', '🂶'), ('6', '🃖'),
+                 ('7', '🃇'), ('7', '🂧'), ('7', '🂷'), ('7', '🃗'),
+                 ('8', '🃈'), ('8', '🂨'), ('8', '🂸'), ('8', '🃘'),
+                 ('9', '🃉'), ('9', '🂩'), ('9', '🂹'), ('9', '🃙'),
+                 ('10', '🃊'), ('10', '🂪'), ('10', '🂺'), ('10', '🃚'),
+                 ('J', '🃋'), ('J', '🂫'), ('J', '🂻'), ('J', '🃛'),
+                 ('Q', '🃍'), ('Q', '🂭'), ('Q', '🂽'), ('Q', '🃝'),
+                 ('K', '🃎'), ('K', '🂮'), ('K', '🂾'), ('K', '🃞')]
+        suits = ['Diamonds', 'hearts', 'Clubs', 'Spades']
         ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
         return [f"{rank} of {suit}" for suit in suits for rank in ranks]
 
@@ -43,8 +57,10 @@ class BlackjackGame:
         conn.send(json.dumps({
             "type": "game",
             "content": {
-                "your_hand": f"Your hand: {', '.join(hand)}",
-                "opponents": {opponent: f"Revealed card: {card}" for opponent, card in opponent_cards.items()}
+                "scoreboard": UI.topScoreboard(),
+                "your_hand": UI.userScoreboard(hand),
+                "opponentsUI":  UI.opponentScoreboard(),
+                "opponents":   {opponent: f"Revealed card: {card}" for opponent, card in opponent_cards.items()}
             }
         }).encode())
 
@@ -127,6 +143,8 @@ class BlackjackGame:
             self.current_player += 1
             self.prompt_next_player()
 
+        
+
     def calculate_hand_value(self, hand):
         value = 0
         aces = 0
@@ -146,3 +164,6 @@ class BlackjackGame:
             aces -= 1
 
         return value
+
+    def __repr__(self):
+        return UI.scoreboard(self.players)
