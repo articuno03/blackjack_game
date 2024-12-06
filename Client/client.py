@@ -119,9 +119,10 @@ def get_user_input(data):
 
         # Handle chat mode input
         if data.chat_mode:
-            text = input("Chat (type 'exit_chat' to leave): ")
+            text = input("Chat (type 'exit_chat' to leave): ").strip()
             if text.lower() == "exit_chat":
                 data.chat_mode = False
+                print("Exited chat mode.")
             else:
                 data.messages.append(create_message("chat", {"text": text}))
         
@@ -157,7 +158,7 @@ def get_user_input(data):
 
 # Main client logic
 host = '0.0.0.0'
-port = 23456
+port = 23466
 num_conns = 1  # Adjust for multiple connections
 
 start_connections(host, port, num_conns)
