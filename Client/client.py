@@ -90,9 +90,13 @@ def handle_message(data, message):
                 for opponent, card_info in content["opponents"].items():
                     print(content["opponentsUI"])
                     print(f"    {opponent}: {card_info}")
+
+                    print(content["bottom"])
                     
         else:
             print(f"Game Update: {content}")
+
+            
 
     elif msg_type == "chat":
         username, text = content["username"], content["text"]
@@ -134,6 +138,12 @@ def get_user_input(data):
                 data.messages.append(create_message("game", {"action": "hit"}))
             elif command == "stand":
                 data.messages.append(create_message("game", {"action": "stand"}))
+            elif command == "bet":
+                try:
+                    amount = int(input("Enter bet amount: ").strip())
+                    data.messages.append(create_message("bet", {"amount": amount}))
+                except ValueError:
+                    print("Invalid amount. Please enter a number.")
             elif command == "quit":
                 data.messages.append(create_message("quit", {}))
                 return  # Exit the input loop
@@ -142,13 +152,12 @@ def get_user_input(data):
             elif command == "no":
                 data.messages.append(create_message("new_game_response", {"response": "no"}))
             else:
-            
                 print("Invalid command. Try again.")
 
 
 # Main client logic
 host = '0.0.0.0'
-port = 2348
+port = 23456
 num_conns = 1  # Adjust for multiple connections
 
 start_connections(host, port, num_conns)

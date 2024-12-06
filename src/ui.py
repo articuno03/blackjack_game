@@ -43,3 +43,10 @@ def opponentScoreboard():
                                               
 
     return message
+
+def bottomScoreboard():
+    message = '''\
+
+===================================================================
+'''
+    return message

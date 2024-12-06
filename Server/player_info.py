@@ -1,7 +1,6 @@
 import json
 import os
 
-
 class PlayerInfo:
     def __init__(self, file_path="players.json"):
         self.file_path = file_path
@@ -27,13 +26,13 @@ class PlayerInfo:
         """Adds a user if the username is unique."""
         if username in self.players.values():
             return False  # Username already taken
-        self.players[client_id] = username
+        self.players[client_id] = {"username": username, "money": 100}
         self.save_players()
         return True
 
     def remove_user(self, username):
         """Removes a user by username."""
-        client_id = next((cid for cid, uname in self.players.items() if uname == username), None)
+        client_id = next((cid for cid, info in self.players.items() if info["username"] == username), None)
         if client_id is not None:
             del self.players[client_id]
             self.save_players()
@@ -42,4 +41,44 @@ class PlayerInfo:
 
     def get_user_list(self):
         """Returns a list of currently connected usernames."""
-        return list(self.players.values())
+        return [info["username"] for info in self.players.values()]
+
+    def get_user_money(self, username):
+        """Returns the money of a user by username."""
+        for info in self.players.values():
+            if info["username"] == username:
+                return info["money"]
+        return None
+
+    def update_user_money(self, username, amount):
+        """Updates the money of a user by username."""
+        for info in self.players.values():
+            if info["username"] == username:
+                info["money"] = amount
+                self.save_players()
+                return True
+        return False
+
+    def place_bet(self, username, amount):
+        """Places a bet for a user."""
+        for info in self.players.values():
+            if info["username"] == username:
+                if info["money"] >= amount:
+                    info["money"] -= amount
+                    info["bet"] = amount
+                    self.save_players()
+                    return True
+                return False
+        return False
+
+    def resolve_bet(self, username, won):
+        """Resolves a bet for a user."""
+        for info in self.players.values():
+            if info["username"] == username:
+                if "bet" in info:
+                    if won:
+                        info["money"] += info["bet"] * 2.5  # 1.5 times the bet plus the original bet
+                    info.pop("bet")
+                    self.save_players()
+                    return True
+        return False

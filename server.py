@@ -73,6 +73,11 @@ def handle_message(conn, message):
                     "content": "Invalid action. Use 'hit' or 'stand'."
                 }).encode())
 
+    elif message_type == "bet":
+        if blackjack_game and game_started:
+            amount = message["content"].get("amount")
+            blackjack_game.handle_player_bet(conn, amount)
+
     elif message_type == "new_game_response":
         response = message["content"].get("response")
         if response == "yes":
@@ -155,7 +160,7 @@ def broadcast_message(message):
 
 # Server setup
 host = '0.0.0.0'
-port = 2348
+port = 23456
 
 sock = socket.socket()
 sock.bind((host, port))

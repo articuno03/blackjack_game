@@ -1,5 +1,7 @@
 import json
+import random
 import src.ui as UI
+from .player_info import PlayerInfo
 
 class BlackjackGame:
     def __init__(self, players, broadcast_callback, end_game_callback):
@@ -19,6 +21,7 @@ class BlackjackGame:
         self.current_player = 0
         self.busted_players = set()
         self.finished_players = set()
+        self.player_info = PlayerInfo()  # Create an instance of PlayerInfo
 
     def create_deck(self):
         suits = ['Diamonds', 'Hearts', 'Clubs', 'Spades']
@@ -49,22 +52,42 @@ class BlackjackGame:
             "content": {
                 "scoreboard": UI.topScoreboard(),
                 "your_hand": UI.userScoreboard(hand),
-                "opponentsUI":  UI.opponentScoreboard(),
-                "opponents":   {opponent: ', '.join(cards) for opponent, cards in opponent_cards.items()}
+                "opponentsUI": UI.opponentScoreboard(),
+                "opponents": {opponent: ', '.join(cards) for opponent, cards in opponent_cards.items()},
+                "bottom": UI.bottomScoreboard()
             }
+
         }).encode())
 
     def start_game(self):
         self.deal_initial_cards()
+        self.prompt_bets()
 
-        print("Initial hands:")
-        for username, hand in self.hands.items():
-            print(f"{username}: {', '.join(hand)}")
-
+    def prompt_bets(self):
         for player in self.players:
             conn, username = player['conn'], player['username']
-            self.send_hand(conn, username)
-        self.prompt_next_player()
+            conn.send(json.dumps({
+                "type": "info",
+                "content": "Place your bet."
+            }).encode())
+
+    def handle_player_bet(self, conn, amount):
+        username = self.turn_order[self.current_player]
+        if self.player_info.place_bet(username, amount):
+            self.broadcast({
+                "type": "info",
+                "content": f"{username} placed a bet of {amount}."
+            })
+            self.send_hand(conn, username)  # Send the updated scoreboard to the player
+            self.current_player += 1
+            if self.current_player >= len(self.turn_order) - 1:
+                self.current_player = 0
+                self.prompt_next_player()
+        else:
+            conn.send(json.dumps({
+                "type": "error",
+                "content": "Insufficient funds or invalid bet."
+            }).encode())
 
     def prompt_next_player(self):
         # Skip players who have busted or finished their turn
@@ -108,12 +131,17 @@ class BlackjackGame:
 
     def end_game(self):
         results = []
+        dealer_value = self.calculate_hand_value(self.hands['Dealer'])
         for username, hand in self.hands.items():
-            if username not in self.busted_players:
+            if username != 'Dealer':
                 hand_value = self.calculate_hand_value(hand)
+                if hand_value > 21 or (dealer_value <= 21 and dealer_value >= hand_value):
+                    self.player_info.resolve_bet(username, False)
+                else:
+                    self.player_info.resolve_bet(username, True)
                 results.append((username, hand_value))
-        results.sort(key=lambda x: x[1], reverse=True)
 
+        results.sort(key=lambda x: x[1], reverse=True)
         winner = results[0][0] if results else None
         if winner:
             self.broadcast({
