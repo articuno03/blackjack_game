@@ -90,7 +90,7 @@ def handle_message(data, message):
                 for opponent, card_info in content["opponents"].items():
                     print(content["opponentsUI"])
                     print(f"    {opponent}: {card_info}")
-                    print(content["opponentsUI"])
+                    
         else:
             print(f"Game Update: {content}")
 
