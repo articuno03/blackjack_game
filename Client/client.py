@@ -85,13 +85,13 @@ def handle_message(data, message):
         if isinstance(content, dict):  # Check if content is structured
             print(content["scoreboard"])
             print(content["your_hand"])
-            print(content["opponentsUI"])
+            
             if "opponents" in content:
                
                
                 for opponent, card_info in content["opponents"].items():
                     print(content["opponentsUI"])
-                    print(f"  {opponent}: {card_info}")
+                    print(f"    {opponent}: {card_info}")
                     print(content["opponentsUI"])
         else:
             print(f"Game Update: {content}")
@@ -126,7 +126,7 @@ def get_user_input(data):
         
         # Handle standard commands
         else:
-            command = input("Enter command (chat, start, list, hit, stand, quit): ").strip().lower()
+            command = input(" ").strip().lower()
             if command == "chat":
                 data.chat_mode = True
             elif command == "start":
@@ -150,7 +150,7 @@ def get_user_input(data):
 
 # Main client logic
 host = '0.0.0.0'
-port = 2345
+port = 2346
 num_conns = 1  # Adjust for multiple connections
 
 start_connections(host, port, num_conns)
