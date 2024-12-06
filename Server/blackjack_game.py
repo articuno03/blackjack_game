@@ -2,14 +2,16 @@ import json
 import src.ui as UI
 
 class BlackjackGame:
-    def __init__(self, players, broadcast_callback):
+    def __init__(self, players, broadcast_callback, end_game_callback):
         """
         Initialize the game.
         :param players: List of player dictionaries with their connection and username.
         :param broadcast_callback: A callback function to broadcast messages to all players.
+        :param end_game_callback: A callback function to notify the server that the game has ended.
         """
         self.players = players
         self.broadcast = broadcast_callback
+        self.end_game_callback = end_game_callback
         self.deck = self.create_deck()
         self.hands = {player['username']: [] for player in players}
         self.hands['Dealer'] = []
@@ -123,6 +125,8 @@ class BlackjackGame:
                 "type": "info",
                 "content": "The game has ended. No winners, everyone busted!"
             })
+
+        self.end_game_callback()  # Notify the server that the game has ended
 
     def handle_player_action(self, conn, action):
         username = self.turn_order[self.current_player]

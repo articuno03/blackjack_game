@@ -112,11 +112,13 @@ def handle_start(conn):
         broadcast_message({"type": "start", "content": "All players are ready! Starting the game..."})
 
         players = [{"conn": conn, "username": clients[conn]["username"]} for conn in clients]
-        blackjack_game = BlackjackGame(players, broadcast_message)
+        blackjack_game = BlackjackGame(players, broadcast_message, end_game_callback)
         blackjack_game.start_game()
 
-        # Send the initial scoreboard
-        
+def end_game_callback():
+    global game_started
+    game_started = False
+    broadcast_message({"type": "info", "content": "The game has ended. You can start a new game now."})
 
 def send_player_list(conn):
     user_list = player_info.get_user_list()
@@ -147,7 +149,7 @@ def broadcast_message(message):
 
 # Server setup
 host = '0.0.0.0'
-port = 2346
+port = 23466
 
 sock = socket.socket()
 sock.bind((host, port))
