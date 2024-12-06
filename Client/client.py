@@ -87,8 +87,6 @@ def handle_message(data, message):
             print(content["your_hand"])
             
             if "opponents" in content:
-               
-               
                 for opponent, card_info in content["opponents"].items():
                     print(content["opponentsUI"])
                     print(f"    {opponent}: {card_info}")
@@ -103,7 +101,6 @@ def handle_message(data, message):
     elif msg_type == "list":
         users = content.get("users", [])
         print("Connected users:", ", ".join(users))
-
 
 
 def get_user_input(data):
@@ -140,17 +137,18 @@ def get_user_input(data):
             elif command == "quit":
                 data.messages.append(create_message("quit", {}))
                 return  # Exit the input loop
+            elif command == "yes":
+                data.messages.append(create_message("new_game_response", {"response": "yes"}))
+            elif command == "no":
+                data.messages.append(create_message("new_game_response", {"response": "no"}))
             else:
+            
                 print("Invalid command. Try again.")
-
-
-
-
 
 
 # Main client logic
 host = '0.0.0.0'
-port = 23466
+port = 2348
 num_conns = 1  # Adjust for multiple connections
 
 start_connections(host, port, num_conns)

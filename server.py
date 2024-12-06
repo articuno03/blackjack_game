@@ -73,6 +73,12 @@ def handle_message(conn, message):
                     "content": "Invalid action. Use 'hit' or 'stand'."
                 }).encode())
 
+    elif message_type == "new_game_response":
+        response = message["content"].get("response")
+        if response == "yes":
+            handle_start(conn)
+        elif response == "no":
+            conn.send(UI.header().encode())
 
 
 def handle_join(conn, message):
@@ -118,7 +124,7 @@ def handle_start(conn):
 def end_game_callback():
     global game_started
     game_started = False
-    broadcast_message({"type": "info", "content": "The game has ended. You can start a new game now."})
+    broadcast_message({"type": "info", "content": "The game has ended. Do you want to start a new game? (yes/no)"})
 
 def send_player_list(conn):
     user_list = player_info.get_user_list()
@@ -149,7 +155,7 @@ def broadcast_message(message):
 
 # Server setup
 host = '0.0.0.0'
-port = 23466
+port = 2348
 
 sock = socket.socket()
 sock.bind((host, port))
