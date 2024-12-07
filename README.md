@@ -2,14 +2,25 @@
 
 This is a simple blackjack game created for online multiplayer
 
+**How to run**
+1. **Verify IP Address:** First you must ensure that the IP Address in both server.py and client.py are setup to communicate properly.
+2. **Ensure an open Port:** Ensure you are using an open port number that is not currently being used.
+3. **Start the server:** Run the `server.py` script.
+4. **Connect clients:** Run the `client.py` script on two different machines or terminals.
+5. **Enter a valid Username:** Begin by entering a username that has not been taken.
+6. **Welcome Screen:** If the following steps have been done, you should see a welcome screen that will outline various commands.
+
 **How to play:**
-1. **Start the server:** Run the `server.py` script.
-2. **Connect clients:** Run the `client.py` script on two different machines or terminals.
-3. **Play the game:** Two players load in and 2 cards are randomly given to each player. One face up, one face down.
-4. **Option** Can choose to hit or stay. If over 21, you lose.
-5. **Opponent Option** Takes their turn to hit or stay.
-6. **Cards Revealed** The winner is decided
-7. **Additional Options** Split
+1. **Start the game:** In order to start the game, all players must ready up with the specified "start" command.
+2. **Place your bet:** Each player is given $100 to bet with. In order to place a bet, use the "bet" command and hit enter. Following this enter the specified amount you would like to bet.
+3. **Initial Cards:** Each player will be given two cards. The game board will show each players cards as well as **one** dealer card.
+4. **Turn Order:** During your turn, you may choose to hit or stand depending on your card hand.
+5. **Hit:** If you choose to hit, you will be given another card to add to your total hand value.
+6. **Stand:** If you choose to stand, your turn is over and your current hand of cards is final and can't be added to.
+7. **Bust!:** If the total of your cards exceeds 21, you will bust and essentially lose that hand.
+8. **21:** The goal of the game is to get as close to a hand total of 21 as possible without exceeding. You are playing against the dealer.
+9. **Face Cards & Aces:** A face card (J,Q,K) is worth 10 points, an Ace is worth either 1 point or 11 points based on your total.
+10. **Have Fun:** Enjoy the game and try to win fake money!
 
 **Technologies used:**
 * Python
@@ -46,16 +57,32 @@ This is a simple blackjack game created for online multiplayer
 *Software
 
 **Assumptions**
-*Assumptions
+*Assumptions: We created the project with a simple layout of commands to help guide new users in navigating the game.
 
 **Role and Responsibilities**
-*Roles
+*Roles: During the development of the game, Garret and Will bounced back and forth in writing the code and used pull requests to check each others new additions before making any changes to main. This ensured main was never broken.
 
 **Communication Plan**
-*Channels
+*Channels: Garret and Will texted throughout the semester to plan meeting times. We met every Tuesday and Thursday at noon to work for several hours.
 
 **Additional Notes**
 *Notes
+
+**Roadmap**
+*Future Releases: Continuing in development of the game, we would like to implement some additional features common to the game of blackjack...
+1. **Split and Double:** These options allow the player to split their hand or double their bet based on certain conditions such as 2 of the same card or an Ace and 7.
+2. **Money Tracking:** We did not implement a way for players to see their current money totals. This would be a useful thing to implement.
+3. **Dynamic IP and Port:** This is something we were missing in our final release and we would like to implement.
+4. **Web UI:** We would like to provide a popup UI, allowing for more creativity in graphics and features.
+
+**Retrospective**
+1. **What Went Well:**
+   - Overall, I think what went well is that we planned on keeping the game simple to reduce the amount of possible bugs and errors in the code. This was a smart choice and saved us some headaches in the long run.
+   - We delegated time very well throughout the semester and established set times every week to meet and discuss the project.
+   - Communication was vital in the team aspect of the project and our vision of the game was shared and agreed upon.
+2. **Improvements:**
+   - Towards the end of the semester, we were a little behind in the development of the game. This caused us to rush some of the later features and miss a few bugs.
+   - We did very little in the area of testing the code. This would have helped us greatly and allowed us to avoid some big challenges we faced.
 
 # Sprint 1: Implement TCP Client/Server
 * Properly established a connection between client and server with the max number of clients set to 10.
