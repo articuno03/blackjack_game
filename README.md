@@ -116,3 +116,5 @@ This is a simple blackjack game created for online multiplayer
 * TODO: Implement Money System
 * TODO: Implement Split and Double Functionality
 * TODO: Implement BlackJack Win Status
+
+# Sprint X: Web Server/Client UI and Encryption
