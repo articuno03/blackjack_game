@@ -28,7 +28,8 @@ This is a simple blackjack game created for online multiplayer
 
 **Additional resources:**
 * [Link to Python documentation]
-* [Link to sockets tutorial]
+* https://docs.python.org/3/library/socket.html
+* https://www.geeksforgeeks.org/socket-programming-python/
 
 # Statement of Work
 
