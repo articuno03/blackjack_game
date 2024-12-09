@@ -80,6 +80,7 @@ This is a simple blackjack game created for online multiplayer
    - Overall, I think what went well is that we planned on keeping the game simple to reduce the amount of possible bugs and errors in the code. This was a smart choice and saved us some headaches in the long run.
    - We delegated time very well throughout the semester and established set times every week to meet and discuss the project.
    - Communication was vital in the team aspect of the project and our vision of the game was shared and agreed upon.
+   - In the end the project worked well, they game was able to be played correctly with multiple player including the dealear.  The game worked according to the rules and each player was allowed to bet with an ingame curreny that can be saved with them for the next games they want to play.
 2. **Improvements:**
    - Towards the end of the semester, we were a little behind in the development of the game. This caused us to rush some of the later features and miss a few bugs.
    - We did very little in the area of testing the code. This would have helped us greatly and allowed us to avoid some big challenges we faced.
