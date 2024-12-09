@@ -74,7 +74,7 @@ This is a simple blackjack game created for online multiplayer
 2. **Money Tracking:** We did not implement a way for players to see their current money totals. This would be a useful thing to implement.
 3. **Dynamic IP and Port:** This is something we were missing in our final release and we would like to implement.
 4. **Web UI:** We would like to provide a popup UI, allowing for more creativity in graphics and features.
-
+5. **Encryption** We would like to make the user have a encrypted password so when they exit the server their stuff is still protected and saved and they can log back on to their specific user.
 **Retrospective**
 1. **What Went Well:**
    - Overall, I think what went well is that we planned on keeping the game simple to reduce the amount of possible bugs and errors in the code. This was a smart choice and saved us some headaches in the long run.
