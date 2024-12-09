@@ -118,3 +118,4 @@ This is a simple blackjack game created for online multiplayer
 * TODO: Implement BlackJack Win Status
 
 # Sprint X: Web Server/Client UI and Encryption
+* Our team did not complete the extra credit implementations for the physical UI and Encryptions as a majority of the focus was towards getting the game to function correctly.
